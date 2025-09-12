@@ -1,7 +1,9 @@
-export enum AccountType {
-  LDAP = 'LDAP',
-  LOCAL = 'LOCAL'
-}
+export const AccountType = {
+  LDAP: 'LDAP',
+  LOCAL: 'LOCAL'
+} as const;
+
+export type AccountType = typeof AccountType[keyof typeof AccountType];
 
 export interface Label {
   text: string;
@@ -16,7 +18,7 @@ export interface Account {
 }
 
 export interface CreateAccountDto {
-  labels?: [];
+  labels?: string;
   type: AccountType;
   login: string;
   password?: string;

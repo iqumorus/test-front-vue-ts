@@ -1,4 +1,4 @@
-import { ValidationRules } from './account';
+import type { ValidationRules } from './account';
 
 export const VALIDATION_RULES: ValidationRules = {
   maxLabelsLength: 50,
