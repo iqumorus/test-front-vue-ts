@@ -25,12 +25,12 @@
             <div class="account-item__field">
               <label class="account-item__label">Метки:</label>
               <el-input
-                v-model="account.labelsString"
+                :model-value="getLabelsString(account.id)"
                 placeholder="Введите метки через ;"
                 maxlength="50"
                 show-word-limit
                 :class="getValidationClass('labels', account.id)"
-                @blur="() => handleFieldBlur('labels', account.id, account.labelsString || '')"
+                @blur="() => handleFieldBlur('labels', account.id, getLabelsString(account.id))"
                 @input="(value: string) => handleLabelsInput(account.id, value)"
                 class="account-item__input"
               />
@@ -137,16 +137,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue'
+import { onMounted } from 'vue'
 import { Plus, Delete } from '@element-plus/icons-vue'
 import { useAccountStore } from '../stores/accountStore'
 import { useValidation } from '../utils/useValidation'
 import { AccountType } from '../types/account'
-import type { Account } from '../types/account'
 
-interface AccountForm extends Omit<Account, 'labels'> {
-  labelsString?: string
-}
 
 const accountStore = useAccountStore()
 const validation = useValidation()
@@ -156,9 +152,7 @@ onMounted(() => {
 })
 
 const handleAddAccount = (): void => {
-  const newAccount = accountStore.addAccount()
-  const accountForm = newAccount as AccountForm
-  accountForm.labelsString = ''
+  accountStore.addAccount()
 }
 
 const handleDeleteAccount = (accountId: string): void => {
@@ -166,11 +160,14 @@ const handleDeleteAccount = (accountId: string): void => {
   validation.removeAccountValidation(accountId)
 }
 
+const getLabelsString = (accountId: string): string => {
+  const account = accountStore.getAccountById(accountId)
+  if (!account) return ''
+  return account.labels.map(label => label.text).join(';')
+}
+
 const handleLabelsInput = (accountId: string, value: string): void => {
-  const account = accountStore.getAccountById(accountId) as AccountForm
-  if (account) {
-    account.labelsString = value
-  }
+  accountStore.updateAccount(accountId, { labels: value })
 }
 
 const handleLoginInput = (accountId: string, value: string): void => {
@@ -201,13 +198,11 @@ const handleFieldBlur = (fieldName: string, accountId: string, value: string): v
   if (!account) return
 
   let fieldValidation
-  let needsUpdate = false
 
   switch (fieldName) {
     case 'labels':
       fieldValidation = validation.validateLabels(value)
       accountStore.updateAccount(accountId, { labels: value })
-      needsUpdate = true
       break
     case 'login':
       fieldValidation = validation.validateLogin(value)
