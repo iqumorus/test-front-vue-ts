@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Account, CreateAccountDto, Label, AccountValidation } from '../types/account'
+import type { Account, CreateAccountDto, Label } from '../types/account'
 import { AccountType } from '../types/account'
 import { STORAGE_KEY } from '../types/constants'
 
